@@ -1,0 +1,227 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <conio.h>
+#define INFINITY 9999
+#define MAX 50
+
+///http://scanftree.com/Data_Structure/dijkstra's-algorithm --> dijkstra kodunu yazarken bu linkten yararlandim.
+
+struct node{
+    char sehir[20];
+    int kod;
+};
+typedef struct node n;
+n dizi[100];
+int  static sayac=0;
+void dijkstra(int G[MAX][MAX],int n, int startnode);
+void dijkstra2(int G[MAX][MAX],int sehir1, int sehir2);
+
+int main(){
+
+
+    FILE*fp;
+    fp=fopen("skod.txt","r");
+    FILE *pp;
+    pp=fopen("sehirr.txt","r");
+
+    char satir[100];
+    char *okunan;
+    int j=0;
+    int sehir1,sehir2;
+
+    char satir2[100];
+    char *temp;
+    int k,h,i,z,b;
+    int i1,i2,dist;
+
+    okunan=fgets(satir,100,fp);
+
+    while(okunan != NULL){
+        okunan= strtok(satir,"-");
+        strcpy(dizi[j].sehir,okunan);
+        printf("%s-",dizi[j].sehir);
+        okunan=strtok(NULL,"\n");
+        sscanf(okunan,"%d",&dizi[j].kod); /// formatly okur
+        printf("%d\n",dizi[j].kod);
+        j++;
+        sayac++;
+        okunan=fgets(satir,100,fp);
+            }
+
+    printf("------------------------------------------------------\n");
+   // printf("%d",sayac);
+
+	int kmatris[sayac][sayac];
+
+	 for(i=0;i<sayac;i++){
+        for(z=0;z<sayac;z++){
+                kmatris[i][z]=NULL;
+                kmatris[z][i]=NULL;
+            }
+	 }
+
+    temp= fgets(satir2,100,pp);
+
+    while(temp!=NULL){
+        temp= strtok(satir2,"-");
+        for(k=0;k<sayac;k++){
+        if(strcmp(temp,dizi[k].sehir)==0)
+           i1= k; // Matris boyutlari belirleniyor.
+        }
+        temp= strtok(NULL,"-");
+
+        for(h=0;h<sayac;h++){
+        if(strcmp(temp,dizi[h].sehir)==0)
+            i2=h;
+        }
+        temp=strtok(NULL,"\n");
+        sscanf(temp,"%d",&dist);
+        kmatris[i1][i2]=dist;
+        kmatris[i2][i1]=dist;
+
+        temp=fgets(satir2,100,pp);
+    }
+printf("\n\t\t-Komsuluk matrisi-\n");
+    for(i=0;i<sayac;i++){
+        for(z=0;z<sayac;z++){
+            if(i==z){
+                kmatris[i][z]=0;
+                kmatris[z][i]=0;
+            }
+            printf("%d ",kmatris[i][z]);
+        }
+       printf("\n");
+    }
+
+
+printf("\n------------------------------------------------------\n");
+
+  printf("\n\t\t - Dijkstra -\t\n");
+  printf("Sectiginiz sehrin kodunu giriniz: ");
+  scanf("%d",&b);
+  printf("\n\t%s sehrinin tum sehirlerle olan en kisa uzakliklari giriliyor...\n",dizi[b-1].sehir);
+  dijkstra(kmatris,sayac,b-1);
+
+  printf("\nBirinci sehri girin: ");
+  scanf("%d",&sehir1);
+  printf("\nIkinci sehri girin: ");
+  scanf("%d",&sehir2);
+  printf("\nSecili sehirler arasindaki en kisa yol:\n");
+  dijkstra2(kmatris,sehir1-1,sehir2-1);
+
+    fclose(fp);
+    fclose(pp);
+    return 0;
+
+}
+
+void dijkstra(int G[sayac][sayac], int n, int startnode)
+{
+	int cost[sayac][sayac], distance[sayac], pred[sayac];
+	int visited[sayac], count, mindistance, nextnode, i,j;
+	for(i=0;i < sayac;i++)
+		for(j=0;j < n;j++)
+			if(G[i][j]==0)
+				cost[i][j]=INFINITY;
+			else
+				cost[i][j]=G[i][j];
+
+	for(i=0;i< sayac;i++)
+	{
+		distance[i]=cost[startnode][i];
+		pred[i]=startnode;
+		visited[i]=0;
+	}
+	distance[startnode]=0;
+	visited[startnode]=1;
+	count=1;
+	while(count < sayac-1){
+		mindistance=INFINITY;
+		for(i=0;i < sayac;i++)
+			if(distance[i] < mindistance&&!visited[i])
+			{
+				mindistance=distance[i];
+				nextnode=i;
+			}
+		visited[nextnode]=1;
+		for(i=0;i < sayac;i++)
+			if(!visited[i])
+				if(mindistance+cost[nextnode][i] < distance[i])
+				{
+					distance[i]=mindistance+cost[nextnode][i];
+					pred[i]=nextnode;
+				}
+			count++;
+	}
+
+	for(i=0;i < sayac;i++){
+		if(i!=startnode)
+		{
+			printf("\n %s ile olan uzakligi = %d", dizi[i].sehir, distance[i]);
+			printf("\nGecilen sehirler = %s", dizi[i].sehir);
+			j=i;
+			do
+			{
+				j=pred[j];
+				printf(" <%s", dizi[j].sehir);
+			}
+			while(j!=startnode);
+		}
+}
+}
+void dijkstra2(int G[sayac][sayac], int sehir1, int sehir2)
+{
+	int cost[sayac][sayac], distance[sayac], pred[sayac];
+	int visited[sayac], count, mindistance, nextnode, i,j;
+	for(i=0;i < sayac;i++)
+		for(j=0;j < sayac;j++)
+			if(G[i][j]==0)
+				cost[i][j]=INFINITY;
+			else
+				cost[i][j]=G[i][j];
+
+	for(i=0;i< sayac;i++)
+	{
+		distance[i]=cost[sehir1][i];
+		pred[i]=sehir1;
+		visited[i]=0;
+	}
+	distance[sehir1]=0;
+	visited[sehir1]=1;
+	count=1;
+	while(count < sayac-1){
+		mindistance=INFINITY;
+		for(i=0;i < sayac;i++)
+			if(distance[i] < mindistance&&!visited[i])
+			{
+				mindistance=distance[i];
+				nextnode=i;
+			}
+		visited[nextnode]=1;
+		for(i=0;i < sayac;i++)
+			if(!visited[i])
+				if(mindistance+cost[nextnode][i] < distance[i])
+				{
+					distance[i]=mindistance+cost[nextnode][i];
+					pred[i]=nextnode;
+				}
+			count++;
+	}
+
+	for(i=0;i < sayac;i++){
+		if(i==sehir2)
+		{
+			printf("\n %s ile olan uzakligi = %d", dizi[i].sehir, distance[i]);
+			printf("\nGectigi sehirler = %s", dizi[i].sehir);
+			j=i;
+			do
+			{
+				j=pred[j];
+				printf(" <%s\n", dizi[j].sehir);
+			}
+			while(j!=sehir1);
+		}
+}
+}
+
